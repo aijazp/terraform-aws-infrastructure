@@ -16,41 +16,42 @@ The infrastructure is designed using a 3-tier architecture with:
 
 All infrastructure resources are created and managed using Infrastructure as Code (IaC) with Terraform.
 
-## Architecture
+
 
 ## Architecture
-
 ```mermaid
 flowchart TB
 
     Internet((Internet))
 
-    IGW[Internet Gateway]
-
     subgraph VPC["AWS VPC - 10.0.0.0/16"]
 
-        subgraph Public["Public Subnet - 10.0.1.0/24"]
-            Web[Web EC2]
-            NAT[NAT Gateway]
+        subgraph Public["Public Subnet - Web Tier"]
+            Web["Web EC2"]
+            NAT["NAT Gateway"]
         end
 
-        subgraph PrivateApp["Private Subnet - 10.0.2.0/24"]
-            App[Application EC2]
+        subgraph PrivateApp["Private Subnet - Application Tier"]
+            App["Application EC2"]
         end
 
-        subgraph PrivateDB["Private Subnet - 10.0.3.0/24"]
-            RDS[(Amazon RDS - MySQL)]
+        subgraph PrivateDB["Private Subnet - Database Tier"]
+            RDS[("Amazon RDS - MySQL")]
         end
 
+        IGW["Internet Gateway"]
+
+        Internet --> IGW
         IGW --> Web
+
         Web --> App
         App --> RDS
+
         App --> NAT
         NAT --> IGW
+
     end
 
-    Internet --> IGW
-    ```
 
 
 ## Project Structure
@@ -59,10 +60,13 @@ flowchart TB
 terraform-aws-infrastructure/
 │
 ├── provider.tf
+├── variables.tf
 ├── main.tf
+│
 ├── subnet.tf
 ├── private-subnet.tf
 ├── private-subnet-2.tf
+│
 ├── internet-gateway.tf
 ├── route-table.tf
 ├── route-association.tf
@@ -70,14 +74,21 @@ terraform-aws-infrastructure/
 ├── private-route-table-association.tf
 ├── private-route-table-association-2.tf
 ├── private-route.tf
+│
 ├── nat-gateway.tf
+│
 ├── security-group.tf
 ├── app-server.tf
-├── db-security-group.tf
+│
 ├── db-subnet-group.tf
+├── db-security-group.tf
 ├── db.tf
+│
 ├── ec2.tf
 ├── outputs.tf
+│
+├── .gitignore
+├── .terraform.lock.hcl
 └── README.md
 
 ## Terraform Deployment
